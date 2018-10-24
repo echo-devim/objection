@@ -116,22 +116,22 @@ def watch_class(args: list) -> None:
 
     if len(clean_argument_flags(args)) < 1:
         click.secho('Usage: android hooking watch class <class> '
-                    '(eg: com.example.test) '
+                    '(eg: com.example.test or (com)?.example.*) '
                     '(optional: --dump-args) '
                     '(optional: --dump-backtrace) '
                     '(optional: --dump-return)', bold=True)
         return
 
-    target_class = args[0]
+    for target_class in search_class([args[0]]):
+        click.secho('Watching class ' + target_class)
+        runner = FridaRunner()
+        runner.set_hook_with_data(android_hook('hooking/watch-class-methods'),
+                target_class=target_class,
+                dump_args=_should_dump_args(args),
+                dump_return=_should_dump_return_value(args),
+                dump_backtrace=_should_dump_backtrace(args))
 
-    runner = FridaRunner()
-    runner.set_hook_with_data(android_hook('hooking/watch-class-methods'),
-                              target_class=target_class,
-                              dump_args=_should_dump_args(args),
-                              dump_return=_should_dump_return_value(args),
-                              dump_backtrace=_should_dump_backtrace(args))
-
-    runner.run_as_job(name='watch-java-class', args=args)
+        runner.run_as_job(name='watch-java-class', args=args)
 
 
 def watch_class_method(args: list) -> None:
@@ -280,7 +280,7 @@ def set_method_return_value(args: list = None) -> None:
     runner.run_as_job(name='set-return-value', args=args)
 
 
-def search_class(args: list) -> None:
+def search_class(args: list) -> list:
     """
         Searches the current Android application for instances
         of a class.
@@ -291,7 +291,7 @@ def search_class(args: list) -> None:
 
     if len(clean_argument_flags(args)) < 1:
         click.secho('Usage: android hooking search classes <name>', bold=True)
-        return
+        return None
 
     search = args[0]
 
@@ -312,6 +312,8 @@ def search_class(args: list) -> None:
             click.secho(classname)
 
         click.secho('\nFound {0} classes'.format(len(response.data)), bold=True)
+        return response.data
 
     else:
         click.secho('No classes found')
+        return None

@@ -5,7 +5,7 @@ var search_string = '{{ search }}'.toLowerCase();
 
 var classes = Java.enumerateLoadedClassesSync().filter(function (class_name) {
 
-    if (class_name.toLowerCase().indexOf(search_string) != -1) {
+    if (class_name.match(search_string, "g") != null) {
         return class_name;
     }
 });
