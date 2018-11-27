@@ -88,14 +88,17 @@ def dump_from_base(args: list) -> None:
         :return:
     """
 
-    if len(clean_argument_flags(args)) < 3:
+    if len(clean_argument_flags(args)) < 2:
         click.secho('Usage: memory dump from_base <base_address> <size_to_dump> <local_destination>', bold=True)
         return
 
     # the destination file to write the dump to
     base_address = args[0]
     memory_size = args[1]
-    destination = args[2]
+    if len(clean_argument_flags(args)) > 2:
+        destination = args[2]
+    else:
+        destination = "stdout"
 
     click.secho('Dumping {0} from {1} to {2}'.format(sizeof_fmt(int(memory_size)), base_address, destination),
                 fg='green', dim=True)
@@ -110,17 +113,23 @@ def dump_from_base(args: list) -> None:
     # Cleanup the script
     runner.unload_script()
 
-    # Check for file override
-    if os.path.exists(destination):
-        click.secho('Destination file {dest} already exists'.format(dest=destination), fg='yellow', bold=True)
-        if not click.confirm('Override?'):
-            return
+    if (destination == "stdout"):
+        click.secho('Content bytes:', bold=True)
+        click.secho(''.join('%02x '%i for i in dump), fg='red')
+        click.secho('Content ASCII:', bold=True)
+        click.secho('{0}'.format(dump), fg='yellow')
+    else:
+        # Check for file override
+        if os.path.exists(destination):
+            click.secho('Destination file {dest} already exists'.format(dest=destination), fg='yellow', bold=True)
+            if not click.confirm('Override?'):
+                return
 
-    # append the results to the destination file
-    with open(destination, 'wb') as f:
-        f.write(dump)
+        # append the results to the destination file
+        with open(destination, 'wb') as f:
+            f.write(dump)
 
-    click.secho('Memory dumped to file: {0}'.format(destination), fg='green')
+        click.secho('Memory dumped to file: {0}'.format(destination), fg='green')
 
 
 def list_modules(args: list = None) -> None:
