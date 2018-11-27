@@ -236,21 +236,25 @@ def write(args: list) -> None:
         click.secho('Usage: memory write "<address>" "<pattern eg: 41 41 41 41>" (--string)', bold=True)
         return
 
-    destination = args[0]
-    pattern = args[1]
-
-    # TODO: Fix this method up to be python3 compatible
+    base_address = args[0]
 
     if _is_string_input(args):
-        pattern = ' '.join(x.encode('hex') for x in args[0])
+        pattern = ' '.join(hex(ord(x))[2:] for x in args[2])
+    else:
+        pattern = args[1]
 
     # create a byte array we will eval in the template
-    pattern = '[{0}]'.format(','.join(['0x%02x' % int(x, 16) for x in pattern.split(' ')]))
-    click.secho('Writing byte array: {0} to {1}'.format(pattern, destination), dim=True)
+    #pattern = '[{0}]'.format(','.join(['0x%02x' % int(x, 16) for x in pattern.split(' ')]))
+    click.secho('Writing byte array: {0} to {1}'.format(pattern, base_address), dim=True)
 
-    runner = FridaRunner()
-    runner.set_hook_with_data(
-        generic_hook('memory/write'),
-        destination=destination, pattern=pattern)
+    hook = generic_hook('memory/write')
+    runner = FridaRunner(hook=hook)
+    api = runner.rpc_exports()
 
-    runner.run()
+    # write the pattern starting at the (base_address)
+    ret = api.write_bytes(int(base_address, 16), pattern)
+    click.secho("Ret: {0}".format(ret))
+    # Cleanup the script
+    runner.unload_script()
+
+
