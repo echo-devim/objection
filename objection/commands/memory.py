@@ -262,7 +262,6 @@ def write(args: list) -> None:
 
     # write the pattern starting at the (base_address)
     ret = api.write_bytes(int(base_address, 16), pattern)
-    click.secho("Ret: {0}".format(ret))
     # Cleanup the script
     runner.unload_script()
 
