@@ -195,7 +195,7 @@ def find_pattern(args: list) -> None:
 
     # if we got a string as input, convert it to hex
     if _is_string_input(args):
-        pattern = ' '.join(hex(ord(x))[2:] for x in args[0])
+        pattern = ' '.join(hex(ord(x))[2:] for x in args[1])
     else:
         pattern = args[0]
 
