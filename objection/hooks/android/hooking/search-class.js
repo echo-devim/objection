@@ -1,7 +1,7 @@
 // Searches for a Java class containing a part of
 // a string.
 
-var search_string = '{{ search }}'.toLowerCase();
+var search_string = '{{ search }}';
 
 var classes = Java.enumerateLoadedClassesSync().filter(function (class_name) {
 
