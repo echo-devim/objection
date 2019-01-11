@@ -6,7 +6,9 @@ var Throwable = Java.use('java.lang.Throwable');
 var target_class = Java.use('{{ target_class }}');
 
 var target_method = '{{ target_method }}';
-var overload_count = target_class[target_method].overloads.length;
+var overload_count = 0;
+if (target_class[target_method] != undefined)
+    overload_count  = target_class[target_method].overloads.length;
 var dump_args = ('{{ dump_args }}'.toLowerCase() === 'true');
 var dump_return = ('{{ dump_return }}'.toLowerCase() === 'true');
 var dump_backtrace = ('{{ dump_backtrace }}'.toLowerCase() === 'true');

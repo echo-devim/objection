@@ -43,8 +43,9 @@ send({
 });
 
 methods.map(function (method) {
-
-    var overload_count = target_class[method].overloads.length;
+    var overload_count = 0;
+    if (target_class[method] != undefined)
+        overload_count = target_class[method].overloads.length;
 
     // Hook all of the overloads found for this class.method
     // TODO: Make this a function that can be used in both this class
