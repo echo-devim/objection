@@ -12,7 +12,7 @@ var methods = target_class.class.getDeclaredMethods().map(function (method) {
 
     // eg: public void com.example.fooBar(int,int)
     var full_method_signature = method.toGenericString();
-
+    
     // strip any 'throws' the method may have
     if (full_method_signature.indexOf(' throws ') !== -1) {
         full_method_signature = full_method_signature.substring(0, full_method_signature.indexOf(' throws '));
@@ -41,6 +41,20 @@ send({
     type: 'watch-class',
     data: 'Found class with ' + methods.length + ' methods (excl: overloads)',
 });
+
+function objToString(obj, ndeep) {
+  switch(typeof obj){
+    case "string": return '"'+obj+'"';
+    case "function": return obj.name || obj.toString();
+    case "object":
+      var indent = Array(ndeep||1).join('\t'), isArray = Array.isArray(obj);
+      return ('{['[+isArray] + Object.keys(obj).map(function(key){
+           return '\n\t' + indent +(isArray?'': key + ': ' )+ objToString(obj[key], (ndeep||1)+1);
+         }).join(',') + '\n' + indent + '}]'[+isArray]).replace(/[\s\t\n]+(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/g,'')
+	 + " | " + JSON.stringify(obj);
+    default: return obj.toString();
+  }
+}
 
 methods.map(function (method) {
     var overload_count = 0;
@@ -93,7 +107,7 @@ methods.map(function (method) {
                             status: 'success',
                             error_reason: NaN,
                             type: 'watch-class',
-                            data: method + ' - Arg ' + h + ': ' + (arguments[h] || '(none)').toString()
+                            data: method + ' - Arg ' + h + ': ' + objToString((arguments[h] || '(none)'))
                         });
                     }
                 }
@@ -107,7 +121,7 @@ methods.map(function (method) {
                         status: 'success',
                         error_reason: NaN,
                         type: 'watch-class',
-                        data: method + ' - Returned : ' + (return_value || '(none)').toString()
+                        data: method + ' - Returned : ' + objToString((return_value || '(none)'))
                     });
                 }
 
