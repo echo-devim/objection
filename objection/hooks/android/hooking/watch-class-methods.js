@@ -48,7 +48,7 @@ function objToString(obj, ndeep) {
     case "function": return obj.name || obj.toString();
     case "object":
       var indent = Array(ndeep||1).join('\t'), isArray = Array.isArray(obj);
-      return ('{['[+isArray] + Object.keys(obj).map(function(key){
+      return obj.toString() + " " + ('{['[+isArray] + Object.keys(obj).map(function(key){
            return '\n\t' + indent +(isArray?'': key + ': ' )+ objToString(obj[key], (ndeep||1)+1);
          }).join(',') + '\n' + indent + '}]'[+isArray]).replace(/[\s\t\n]+(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/g,'')
 	 + " | " + JSON.stringify(obj);
